@@ -73,7 +73,7 @@ class Database:
             for english_word, value in json_data.items()
         ]
         self.cur.executemany(SQL_INSERT_MANY, init_data)
-
+        self.conn.commit()
     
     def open_database(self):
         logger.info("open database")

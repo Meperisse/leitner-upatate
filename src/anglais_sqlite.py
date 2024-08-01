@@ -1,9 +1,14 @@
 import json
+import logging
 import os
 import sqlite3
 
 
+logger = logging.getLogger(__name__)
+
+
 ## to be moved in config file
+LOGLEVEL = logging.INFO
 DATABASE_FILE = 'david.db'
 JSON_FILENAME = 'anglais_init.json'
 ## end
@@ -37,6 +42,7 @@ class Database:
             self.fill_database()
 
     def create_database(self):
+        logger.info("create database")
         self.cur.execute(SQL_CREATE)
 
     def database_file_exists(self):
@@ -53,6 +59,7 @@ class Database:
         return row[0] == 0
     
     def fill_database(self):
+        logger.info("attempt to fill database")
         with open(self.json_filename) as json_file:
             json_data = json.load(json_file)
         init_data = [
@@ -69,12 +76,14 @@ class Database:
 
     
     def open_database(self):
+        logger.info("open database")
         db_exists = self.database_file_exists()
         self.conn = sqlite3.connect(self.database_filename)
         self.cur = self.conn.cursor()
         return db_exists
 
     def close_database(self):
+        logger.info("close database")
         if self.cur is not None:
             self.cur.close()
         self.cur = None
@@ -83,11 +92,13 @@ class Database:
         self.conn = None
 
     def remove_database(self):
+        logger.info("remove database")
         self.close_database()
         if self.database_file_exists():
             os.remove(self.database_filename)
 
     def reset_database(self):
+        logger.info("reset database")
         self.remove_database()
         self.open_database()
         self.create_database()
@@ -99,6 +110,7 @@ def main_loop(my_db):
 
 
 def main():
+    logging.basicConfig(level=LOGLEVEL)
     my_db = Database(DATABASE_FILE)
     my_db.ready()
     main_loop(my_db)

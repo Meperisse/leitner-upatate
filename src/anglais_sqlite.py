@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 ## to be moved in config file
 LOGLEVEL = logging.INFO
 DATABASE_FILE = 'david.db'
-JSON_FILENAME = 'anglais_init.json'
+JSON_FILENAME = 'data/anglais_init.json'
 ## end
 ## sql default
 SQL_CREATE = """

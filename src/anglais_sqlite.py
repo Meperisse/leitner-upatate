@@ -159,7 +159,13 @@ class MyRow:
 
 
 def main_loop(my_db):
-    pass
+    # recuperer les fiches (critere de categorie, d'age et de nombre)
+    # pour chaque fiche, poser la question
+    # mettre a jour la fiche en fonction de la reponse
+    my_table = MyTable(my_db)
+    rows = my_table.get_category(0)
+    data = MyRow(rows[0])
+    breakpoint()
 
 
 def main():

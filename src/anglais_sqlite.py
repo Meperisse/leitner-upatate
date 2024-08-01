@@ -29,6 +29,12 @@ SELECT count(*) FROM anglais_v2
 SQL_INSERT_MANY = """
 INSERT INTO anglais_v2('category', 'last_update', 'question', 'response', 'example') VALUES (?, ?, ?, ?, ?)
 """
+SQL_CATEGORY = """
+SELECT * FROM anglais_v2
+WHERE category = {cat}
+ORDER BY last_update ASC
+LIMIT {limit}
+"""
 ## end
 
 class Database:
@@ -110,6 +116,15 @@ class Database:
         self.open_database()
         self.create_database()
         self.fill_database()
+
+class MyTable:
+    def __init__(self, my_db):
+        self.db = my_db
+
+    def get_category(self, cat, limit=30):
+        self.db.cur.execute(SQL_CATEGORY.format(cat=cat, limit=limit))
+        return self.db.cur.fetchall()
+
 
 class MyRow:
     def __init__(self, row):

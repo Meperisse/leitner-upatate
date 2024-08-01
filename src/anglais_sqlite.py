@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -109,6 +110,37 @@ class Database:
         self.open_database()
         self.create_database()
         self.fill_database()
+
+class MyRow:
+    def __init__(self, row):
+        (
+            self.category,
+            self.last_update,
+            self.question,
+            self.response,
+            dict_example
+        ) = row
+        self.dict_example = json.loads(dict_example)
+
+    def __repr__(self):
+        return f"<datarow: {str(self)}>"
+
+    def __str__(self):
+        return f"{self.category}|{self.age_from_now()}|{self.question}"
+
+    def example(self, lang, num):
+        res = self.dict_example.get(lang)
+        if res is None:
+            return None
+        return res[num % 3]
+
+    def age(self, date_time):
+        if self.last_update is None:
+            return None
+        return date_time - self.last_update
+
+    def age_from_now(self):
+        return self.age(datetime.datetime.now())
 
 
 def main_loop(my_db):

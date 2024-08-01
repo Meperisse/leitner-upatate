@@ -17,7 +17,7 @@ JSON_FILENAME = 'data/anglais_init.json'
 SQL_CREATE = """
 CREATE TABLE IF NOT EXISTS anglais_v2(
     category INTEGER NOT NULL DEFAULT 0,
-    last_update TEXT,
+    last_update TEXT DEFAULT NULL,
     question TEXT NOT NULL,
     response TEXT NOT NULL,
     example TEXT NOT NULL
@@ -27,7 +27,7 @@ SQL_IS_EMPTY = """
 SELECT count(*) FROM anglais_v2
 """
 SQL_INSERT_MANY = """
-INSERT INTO anglais_v2('category', 'last_update', 'question', 'response', 'example') VALUES (?, ?, ?, ?, ?)
+INSERT INTO anglais_v2('question', 'response', 'example') VALUES (?, ?, ?)
 """
 SQL_CATEGORY = """
 SELECT * FROM anglais_v2
@@ -77,8 +77,6 @@ class Database:
             json_data = json.load(json_file)
         init_data = [
             (
-                0,
-                None,
                 english_word,
                 value['translation'],
                 json.dumps(value['examples'])

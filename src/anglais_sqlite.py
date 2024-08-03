@@ -170,8 +170,12 @@ def main():
     logging.basicConfig(level=LOGLEVEL)
     my_db = Database(DATABASE_FILENAME)
     my_db.ready()
-    main_loop(my_db)
-    my_db.close_database()
+    try:
+        main_loop(my_db)
+    except Exception as err:
+        raise err
+    finally:
+        my_db.close_database()
 
 
 if __name__ == '__main__':

@@ -17,7 +17,7 @@ JSON_FILENAME = 'data/anglais_init.json'
 SQL_CREATE = """
 CREATE TABLE IF NOT EXISTS anglais_v2(
     category INTEGER NOT NULL DEFAULT 0,
-    last_update TEXT DEFAULT NULL,
+    last_update INTEGER DEFAULT NULL,
     question TEXT NOT NULL,
     response TEXT NOT NULL,
     example TEXT NOT NULL

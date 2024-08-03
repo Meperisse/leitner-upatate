@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 ## to be moved in config file
 LOGLEVEL = logging.INFO
-DATABASE_FILE = 'david.db'
+DATABASE_FILENAME = 'david.db'
 JSON_FILENAME = 'data/anglais_init.json'
 ## end
 ## sql default
@@ -168,7 +168,7 @@ def main_loop(my_db):
 
 def main():
     logging.basicConfig(level=LOGLEVEL)
-    my_db = Database(DATABASE_FILE)
+    my_db = Database(DATABASE_FILENAME)
     my_db.ready()
     main_loop(my_db)
     my_db.close_database()

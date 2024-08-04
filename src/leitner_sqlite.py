@@ -74,13 +74,16 @@ class Database:
         logger.info("attempt to fill database")
         with open(self.json_filename) as json_file:
             json_data = json.load(json_file)
+        fif = datetime.datetime.fromisoformat
         init_data = [
             (
-                value.get('category', 0),
-                value.get('last_update'),
+                value.get("category", 0),
+                fif(value.get("last_update")).timestamp()
+                if value.get("last_update")
+                else None,
                 english_word,
-                value['translation'],
-                json.dumps(value['examples'])
+                value["translation"],
+                json.dumps(value.get("examples", "")),
             )
             for english_word, value in json_data.items()
         ]
@@ -133,7 +136,7 @@ class MyRow:
             self.last_update,
             self.question,
             self.response,
-            dict_example
+            dict_example,
         ) = row
         self.dict_example = json.loads(dict_example)
 

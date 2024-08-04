@@ -38,11 +38,14 @@ class Database:
     json_filename = None
     database_filename = None
 
-    def __init__(self, database_filename, json_filename=None):
+    def __init__(self, database_filename, json_filename=None, overwrite=False):
         self.database_filename = database_filename
         self.json_filename = json_filename
+        self.overwrite = overwrite
 
     def ready(self):
+        if self.overwrite:
+            self.remove_database()
         db_exists = self.open_database()
         if not db_exists:
             self.create_database()

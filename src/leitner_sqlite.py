@@ -32,6 +32,7 @@ LIMIT {limit}
 """
 ## end
 
+
 class Database:
     conn = None
     cur = None
@@ -63,12 +64,12 @@ class Database:
         except FileNotFoundError:
             return False
         return True
-    
+
     def database_is_empty(self):
         self.cur.execute(SQL_IS_EMPTY)
         row = self.cur.fetchone()
         return row[0] == 0
-    
+
     def fill_database(self):
         logger.info("attempt to fill database")
         with open(self.json_filename) as json_file:
@@ -85,7 +86,7 @@ class Database:
         ]
         self.cur.executemany(SQL_INSERT_MANY, init_data)
         self.conn.commit()
-    
+
     def open_database(self):
         logger.info("open database")
         db_exists = self.database_file_exists()
@@ -114,6 +115,7 @@ class Database:
         self.open_database()
         self.create_database()
         self.fill_database()
+
 
 class MyTable:
     def __init__(self, my_db):

@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 ## to be moved in config file
 LOGLEVEL = logging.INFO
-DATABASE_FILENAME = 'david.db'
-JSON_FILENAME = 'data/anglais_init.json'
+DATABASE_FILENAME = "david.db"
+JSON_FILENAME = "data/anglais_init.json"
 ## end
 
 
@@ -34,5 +34,5 @@ def main():
         my_db.close_database()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

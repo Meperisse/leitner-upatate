@@ -8,11 +8,6 @@ import sqlite3
 logger = logging.getLogger(__name__)
 
 
-## to be moved in config file
-LOGLEVEL = logging.INFO
-DATABASE_FILENAME = 'david.db'
-JSON_FILENAME = 'data/anglais_init.json'
-## end
 ## sql default
 SQL_CREATE = """
 CREATE TABLE IF NOT EXISTS anglais_v2(
@@ -27,7 +22,7 @@ SQL_IS_EMPTY = """
 SELECT count(*) FROM anglais_v2
 """
 SQL_INSERT_MANY = """
-INSERT INTO anglais_v2('question', 'response', 'example') VALUES (?, ?, ?)
+INSERT INTO anglais_v2('category', 'last_update', 'question', 'response', 'example') VALUES (?, ?, ?, ?, ?)
 """
 SQL_CATEGORY = """
 SELECT * FROM anglais_v2
@@ -45,7 +40,7 @@ class Database:
 
     def __init__(self, database_filename, json_filename=None):
         self.database_filename = database_filename
-        self.json_filename = json_filename or JSON_FILENAME
+        self.json_filename = json_filename
 
     def ready(self):
         db_exists = self.open_database()
@@ -77,6 +72,8 @@ class Database:
             json_data = json.load(json_file)
         init_data = [
             (
+                value.get('category', 0),
+                value.get('last_update'),
                 english_word,
                 value['translation'],
                 json.dumps(value['examples'])
@@ -154,29 +151,3 @@ class MyRow:
 
     def age_from_now(self):
         return self.age(datetime.datetime.now())
-
-
-def main_loop(my_db):
-    # recuperer les fiches (critere de categorie, d'age et de nombre)
-    # pour chaque fiche, poser la question
-    # mettre a jour la fiche en fonction de la reponse
-    my_table = MyTable(my_db)
-    rows = my_table.get_category(0)
-    data = MyRow(rows[0])
-    breakpoint()
-
-
-def main():
-    logging.basicConfig(level=LOGLEVEL)
-    my_db = Database(DATABASE_FILENAME)
-    my_db.ready()
-    try:
-        main_loop(my_db)
-    except Exception as err:
-        raise err
-    finally:
-        my_db.close_database()
-
-
-if __name__ == '__main__':
-    main()

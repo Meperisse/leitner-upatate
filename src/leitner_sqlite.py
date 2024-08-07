@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 ## sql default
 SQL_CREATE = """
 CREATE TABLE IF NOT EXISTS anglais_v2(
+    id INTEGER NOT NULL PRIMARY KEY,
     category INTEGER NOT NULL DEFAULT 0,
     last_update INTEGER DEFAULT NULL,
     question TEXT NOT NULL,
@@ -28,7 +29,7 @@ SQL_ALL = """
 SELECT id, category, last_update, question, response, example FROM anglais_v2
 """
 SQL_CATEGORY = """
-SELECT * FROM anglais_v2
+SELECT id, category, last_update, question, response, example FROM anglais_v2
 WHERE category = {cat}
 ORDER BY last_update ASC
 LIMIT {limit}

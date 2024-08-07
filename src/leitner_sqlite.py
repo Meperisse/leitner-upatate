@@ -82,7 +82,10 @@ class Database:
         init_data = [
             (
                 value.get("category", 0),
-                fif(value.get("last_update")).timestamp()
+                (
+                    fif(value.get("last_update")).timestamp()
+                    // 86400
+                )
                 if value.get("last_update")
                 else None,
                 english_word,

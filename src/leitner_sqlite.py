@@ -24,6 +24,9 @@ SELECT count(*) FROM anglais_v2
 SQL_INSERT_MANY = """
 INSERT INTO anglais_v2('category', 'last_update', 'question', 'response', 'example') VALUES (?, ?, ?, ?, ?)
 """
+SQL_ALL = """
+SELECT id, category, last_update, question, response, example FROM anglais_v2
+"""
 SQL_CATEGORY = """
 SELECT * FROM anglais_v2
 WHERE category = {cat}
@@ -124,14 +127,29 @@ class MyTable:
     def __init__(self, my_db):
         self.db = my_db
 
+    def all(self):
+        self.db.cur.execute(SQL_ALL)
+        return self.db.cur.fetchall()
+
     def get_category(self, cat, limit=30):
         self.db.cur.execute(SQL_CATEGORY.format(cat=cat, limit=limit))
         return self.db.cur.fetchall()
 
 
 class MyRow:
-    def __init__(self, row):
+    id = None
+    category = 0
+    last_update = None
+    question = ""
+    response = ""
+    dict_example = None
+
+    def __init__(self, row=None):
+        if row is None:
+            self.dict_example = {}
+            return
         (
+            self.id,
             self.category,
             self.last_update,
             self.question,

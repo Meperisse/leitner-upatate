@@ -1,5 +1,5 @@
 import pytest
-from leitner_sqlite import Database, MyTable
+from leitner_sqlite import Database, MyTable, MyRow
 
 
 # This fixture simplify create/destroy test database
@@ -26,6 +26,17 @@ class TestDatabase:
         my_db = Database("data_test/test.db", "data_test/simple.json", overwrite=True)
         my_db.ready()
         assert not my_db.database_is_empty()
+        my_db.cur.execute("UPDATE anglais_v2 SET category = 2")
+        my_db.conn.commit()
+
+    # check that db contain now a category = 2
+    def test_remaining_db(self):
+        my_db = Database("data_test/test.db", "data_test/simple.json", overwrite=False)
+        my_db.ready()
+        my_table = MyTable(my_db)
+        rows = my_table.all()
+        row = MyRow(rows[0])
+        assert row.category == 2
 
 
 def test_ma_fixture(db_test):

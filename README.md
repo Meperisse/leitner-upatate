@@ -5,7 +5,7 @@ This program should help to learn english vocabulary
 # how to use
 
 - install `python3`
-- in a terminal launch `python3 src/main.py`
+- in a terminal launch `cd src ; python3 main.py`
 
 # how it works
 

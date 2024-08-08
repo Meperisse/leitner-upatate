@@ -205,7 +205,7 @@ class MyTable:
 
     def all(self):
         self.db.cur.execute(SQL_ALL)
-        return self.db.cur.fetchall()
+        return [MyRow(self.db, elm) for elm in self.db.cur.fetchall()]
 
     @staticmethod
     def get_daystamp_from_date(date=None):
@@ -233,15 +233,15 @@ class MyTable:
                 day_from_epoch=day_from_epoch, limit=self.db.req2_limit
             )
         )
-        return [MyRow(elm) for elm in self.db.cur.fetchall()]
+        return [MyRow(self.db, elm) for elm in self.db.cur.fetchall()]
 
     def get_selection_known_words(self):
         self.db.cur.execute(SQL_SEL_KNOWN_WORDS.format(limit=self.db.req3_limit))
-        return [MyRow(elm) for elm in self.db.cur.fetchall()]
+        return [MyRow(self.db, elm) for elm in self.db.cur.fetchall()]
 
     def get_selection_new_words(self, limit):
         self.db.cur.execute(SQL_SEL_NEW_WORDS.format(limit=limit))
-        return [MyRow(elm) for elm in self.db.cur.fetchall()]
+        return [MyRow(self.db, elm) for elm in self.db.cur.fetchall()]
 
     def get_all_selection(self):
         req2 = self.get_selection_with_score()
@@ -261,7 +261,8 @@ class MyRow:
     response = ""
     dict_example = None
 
-    def __init__(self, row=None):
+    def __init__(self, my_db, row=None):
+        self.db = my_db
         if row is None:
             self.dict_example = {}
             return

@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from leitner_sqlite import Database, MyTable, MyRow
+from leitner_sqlite import Database, MyTable
 
 
 # This fixture simplify create/destroy test database
@@ -47,7 +47,7 @@ class TestDatabase:
         my_db.ready()
         my_table = MyTable(my_db)
         rows = my_table.all()
-        row = MyRow(rows[0])
+        row = rows[0]
         assert row.category == 2
 
 

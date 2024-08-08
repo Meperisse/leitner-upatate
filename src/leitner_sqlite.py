@@ -19,11 +19,21 @@ CREATE TABLE IF NOT EXISTS anglais_v2(
     example TEXT NOT NULL
 )
 """
+SQL_CREATE_SCORE = """
+CREATE TABLE IF NOT EXISTS score(
+    id INTEGER NOT NULL,
+    age INTEGER NOT NULL,
+    coef INTEGER NOT NULL
+)
+"""
 SQL_IS_EMPTY = """
 SELECT count(*) FROM anglais_v2
 """
 SQL_INSERT_MANY = """
 INSERT INTO anglais_v2('category', 'last_update', 'question', 'response', 'example') VALUES (?, ?, ?, ?, ?)
+"""
+SQL_INSERT_SCORE_MANY = """
+INSERT INTO score('id', 'age', 'coef') VALUES (?, ?, ?)
 """
 SQL_ALL = """
 SELECT id, category, last_update, question, response, example FROM anglais_v2
@@ -43,10 +53,22 @@ class Database:
     json_filename = None
     database_filename = None
 
-    def __init__(self, database_filename, json_filename=None, overwrite=False):
+    def __init__(
+        self,
+        database_filename,
+        json_filename=None,
+        category_score=None,
+        overwrite=False,
+    ):
         self.database_filename = database_filename
         self.json_filename = json_filename
         self.overwrite = overwrite
+        if category_score is None:
+            category_score = [(2**x, 2 ** (6 - x)) for x in range(7)]
+        category_score = [(0, 0)] + category_score + [(0, 0)]
+        self.category_score = [
+            (idx, val[0], val[1]) for idx, val in enumerate(category_score)
+        ]
 
     def ready(self):
         if self.overwrite:
@@ -60,6 +82,7 @@ class Database:
     def create_database(self):
         logger.info("create database")
         self.cur.execute(SQL_CREATE)
+        self.cur.execute(SQL_CREATE_SCORE)
 
     def database_file_exists(self):
         "check if sqlite3 file exists"
@@ -82,10 +105,7 @@ class Database:
         init_data = [
             (
                 value.get("category", 0),
-                (
-                    fif(value.get("last_update")).timestamp()
-                    // 86400
-                )
+                (fif(value.get("last_update")).timestamp() // 86400)
                 if value.get("last_update")
                 else None,
                 english_word,
@@ -95,6 +115,7 @@ class Database:
             for english_word, value in json_data.items()
         ]
         self.cur.executemany(SQL_INSERT_MANY, init_data)
+        self.cur.executemany(SQL_INSERT_SCORE_MANY, self.category_score)
         self.conn.commit()
 
     def open_database(self):

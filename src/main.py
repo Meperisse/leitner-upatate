@@ -9,6 +9,16 @@ logger = logging.getLogger(__name__)
 LOGLEVEL = logging.INFO
 DATABASE_FILENAME = "david.db"
 JSON_FILENAME = "data/anglais_init.json"
+CATEGORY_SCORE = [
+    # age in day, score coefficient
+    (1, 64),
+    (2, 32),
+    (4, 16),
+    (8, 8),
+    (16, 4),
+    (32, 2),
+    (64, 1),
+]
 ## end
 
 
@@ -24,7 +34,7 @@ def main_loop(my_db):
 
 def main():
     logging.basicConfig(level=LOGLEVEL)
-    my_db = Database(DATABASE_FILENAME, JSON_FILENAME)
+    my_db = Database(DATABASE_FILENAME, JSON_FILENAME, CATEGORY_SCORE)
     my_db.ready()
     try:
         main_loop(my_db)

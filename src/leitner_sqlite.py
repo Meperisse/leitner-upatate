@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+import random
 import sqlite3
 
 
@@ -44,6 +45,50 @@ WHERE category = {cat}
 ORDER BY last_update ASC
 LIMIT {limit}
 """
+SQL_SEL_SCORE = """
+SELECT
+    anglais_v2.id,
+    anglais_v2.category,
+    anglais_v2.last_update,
+    anglais_v2.question,
+    anglais_v2.response,
+    anglais_v2.example,
+    CASE
+       WHEN ({day_from_epoch} - anglais_v2.last_update - score.age) < 0 THEN 0
+       ELSE ({day_from_epoch} - anglais_v2.last_update - score.age + 1) * score.coef
+    END computed_score
+
+FROM anglais_v2 INNER JOIN score ON anglais_v2.category = score.id
+WHERE category IN (1,2,3,4,5,6,7)
+ORDER BY computed_score DESC
+LIMIT {limit}
+"""
+SQL_SEL_KNOWN_WORDS = """
+SELECT
+    id,
+    category,
+    last_update,
+    question,
+    response,
+    example
+FROM anglais_v2
+WHERE category = 8
+ORDER BY last_update DESC
+LIMIT {limit}
+"""
+SQL_SEL_NEW_WORDS = """
+SELECT
+    anglais_v2.id,
+    anglais_v2.category,
+    anglais_v2.last_update,
+    anglais_v2.question,
+    anglais_v2.response,
+    anglais_v2.example
+FROM anglais_v2
+WHERE category = 0
+ORDER BY random()
+LIMIT {limit}
+"""
 ## end
 
 
@@ -59,6 +104,9 @@ class Database:
         json_filename=None,
         category_score=None,
         overwrite=False,
+        total_word=150,
+        req2_pcent=70,
+        req3_pcent=4,
     ):
         self.database_filename = database_filename
         self.json_filename = json_filename
@@ -69,6 +117,9 @@ class Database:
         self.category_score = [
             (idx, val[0], val[1]) for idx, val in enumerate(category_score)
         ]
+        self.total_word = total_word
+        self.req2_limit = int(total_word * (req2_pcent / 100))
+        self.req3_limit = int(total_word * (req3_pcent / 100))
 
     def ready(self):
         if self.overwrite:
@@ -108,9 +159,9 @@ class Database:
                 (fif(value.get("last_update")).timestamp() // 86400)
                 if value.get("last_update")
                 else None,
-                english_word,
                 value["translation"],
-                json.dumps(value.get("examples", "")),
+                english_word,
+                json.dumps(value.get("examples", {})),
             )
             for english_word, value in json_data.items()
         ]
@@ -156,9 +207,50 @@ class MyTable:
         self.db.cur.execute(SQL_ALL)
         return self.db.cur.fetchall()
 
-    def get_category(self, cat, limit=30):
-        self.db.cur.execute(SQL_CATEGORY.format(cat=cat, limit=limit))
-        return self.db.cur.fetchall()
+    @staticmethod
+    def get_daystamp_from_date(date=None):
+        """staticmethod permet de faire une methode sans 'self' donc
+        cette methode peut donc etre utilise depuis une classe ou
+        une instance indifferemment
+        """
+        if date is None:
+            date = datetime.datetime.now()
+        elif isinstance(date, datetime.date):
+            date = datetime.datetime(date.year, date.month, date.day)
+        elif isinstance(date, str):
+            date = datetime.datetime.fromisoformat(date)
+        if not isinstance(date, datetime.datetime):
+            raise ValueError(
+                "Date format error, must be None, Date, Datetime or string"
+            )
+        day_from_epoch = int(date.timestamp() // 86400)  # day in seconds
+        return day_from_epoch
+
+    def get_selection_with_score(self, date=None):
+        day_from_epoch = self.get_daystamp_from_date(date)
+        self.db.cur.execute(
+            SQL_SEL_SCORE.format(
+                day_from_epoch=day_from_epoch, limit=self.db.req2_limit
+            )
+        )
+        return [MyRow(elm) for elm in self.db.cur.fetchall()]
+
+    def get_selection_known_words(self):
+        self.db.cur.execute(SQL_SEL_KNOWN_WORDS.format(limit=self.db.req3_limit))
+        return [MyRow(elm) for elm in self.db.cur.fetchall()]
+
+    def get_selection_new_words(self, limit):
+        self.db.cur.execute(SQL_SEL_NEW_WORDS.format(limit=limit))
+        return [MyRow(elm) for elm in self.db.cur.fetchall()]
+
+    def get_all_selection(self):
+        req2 = self.get_selection_with_score()
+        req3 = self.get_selection_known_words()
+        limit_req1 = self.db.total_word - (len(req2) + len(req3))
+        req1 = self.get_selection_new_words(limit_req1)
+        res = req1 + req2 + req3
+        random.shuffle(res)
+        return res
 
 
 class MyRow:
@@ -173,15 +265,33 @@ class MyRow:
         if row is None:
             self.dict_example = {}
             return
-        (
-            self.id,
-            self.category,
-            self.last_update,
-            self.question,
-            self.response,
-            dict_example,
-        ) = row
+        rowlen = len(row)
+        if rowlen == 6:
+            (
+                self.id,
+                self.category,
+                self.last_update,
+                self.question,
+                self.response,
+                dict_example,
+            ) = row
+            # add a dummy placeholder in order to
+            # return the same type of object
+            self.computed_score = None
+        elif rowlen == 7:
+            (
+                self.id,
+                self.category,
+                self.last_update,
+                self.question,
+                self.response,
+                dict_example,
+                self.computed_score,
+            ) = row
+        else:
+            dict_example = "{}"
         self.dict_example = json.loads(dict_example)
+        self.len_example = len(self.dict_example.get("fr", ""))
 
     def __repr__(self):
         return f"<datarow: {str(self)}>"
@@ -198,7 +308,8 @@ class MyRow:
     def age(self, date_time):
         if self.last_update is None:
             return None
-        return date_time - self.last_update
+        daystamp = int(date_time.timestamp() // 86400)
+        return daystamp - self.last_update
 
     def age_from_now(self):
         return self.age(datetime.datetime.now())

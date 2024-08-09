@@ -27,19 +27,19 @@ REQ3_PCENT = 4
 
 
 def update_i_know(row, recto, idx_example):
-    # if category == 0:
-    #    category = 2
-    # elif category == 8:
-    #    category = 8
-    # else:
-    #    category += 1
-    # last_update = today()
+    if row.category == 0:
+        row.category = 2
+    elif row.category != 8:
+        row.category += 1
+    row.last_update = MyTable.get_daystamp_from_date()
+    row.save()
     return 1, recto
 
 
 def update_i_dont_know(row, recto, idx_example):
-    # category = 1
-    # last_update = today()
+    row.category = 1
+    row.last_update = MyTable.get_daystamp_from_date()
+    row.save()
     return 1, recto
 
 

@@ -50,6 +50,7 @@ def show_translation(row, recto, idx_example):
 
 
 def delete_card(row, recto, idx_example):
+    row.delete()
     return 1, recto
 
 

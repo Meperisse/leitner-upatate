@@ -99,6 +99,10 @@ UPDATE anglais_v2 SET
 WHERE
      id = ?
 """
+SQL_DELETE_ENTRY = """
+DELETE FROM anglais_v2
+WHERE id = {id}
+"""
 ## end
 
 
@@ -322,6 +326,10 @@ class MyRow:
         self.db.cur.executemany(save_request, [data])
         self.db.conn.commit()
 
+    def delete(self):
+        if self.id is not None:
+            self.db.cur.execute(SQL_DELETE_ENTRY.format(id=self.id))
+
     def __repr__(self):
         return f"<datarow: {str(self)}>"
 
@@ -335,6 +343,7 @@ class MyRow:
         return res[num % 3]
 
     def age(self, date_time):
+        "return age of last update in day"
         if self.last_update is None:
             return None
         daystamp = int(date_time.timestamp() // 86400)

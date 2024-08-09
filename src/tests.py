@@ -121,3 +121,13 @@ def test_update_row(db_test):
     existing_row.save()
     my_qs = my_table.all()
     assert len(my_qs) == 9
+
+
+def test_delete_row(db_test):
+    my_table = MyTable(db_test)
+    my_qs = my_table.all()
+    assert len(my_qs) == 9
+    existing_row = my_qs[0]
+    existing_row.delete()
+    my_qs = my_table.all()
+    assert len(my_qs) == 8

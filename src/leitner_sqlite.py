@@ -89,6 +89,16 @@ WHERE category = 0
 ORDER BY random()
 LIMIT {limit}
 """
+SQL_UPDATE_ENTRY = """
+UPDATE anglais_v2 SET
+     category = ?,
+     last_update = ?,
+     question = ?,
+     response = ?,
+     example = ?
+WHERE
+     id = ?
+"""
 ## end
 
 
@@ -274,7 +284,7 @@ class MyRow:
                 self.last_update,
                 self.question,
                 self.response,
-                dict_example,
+                self.json_example,
             ) = row
             # add a dummy placeholder in order to
             # return the same type of object
@@ -286,13 +296,31 @@ class MyRow:
                 self.last_update,
                 self.question,
                 self.response,
-                dict_example,
+                self.json_example,
                 self.computed_score,
             ) = row
         else:
-            dict_example = "{}"
-        self.dict_example = json.loads(dict_example)
+            self.json_example = "{}"
+        self.dict_example = json.loads(self.json_example)
         self.len_example = len(self.dict_example.get("fr", ""))
+
+    def save(self):
+        data = [
+            self.category,
+            self.last_update,
+            self.question,
+            self.response,
+            self.json_example,
+        ]
+        if self.id is None:
+            # insert
+            save_request = SQL_INSERT_MANY
+        else:
+            # update
+            data.append(self.id)
+            save_request = SQL_UPDATE_ENTRY
+        self.db.cur.executemany(save_request, [data])
+        self.db.conn.commit()
 
     def __repr__(self):
         return f"<datarow: {str(self)}>"

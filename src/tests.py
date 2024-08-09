@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from leitner_sqlite import Database, MyTable
+from leitner_sqlite import Database, MyTable, MyRow
 
 
 # This fixture simplify create/destroy test database
@@ -96,3 +96,28 @@ class TestMyTable:
         my_table = MyTable(db_test)
         my_qs = my_table.get_all_selection()
         assert len(my_qs) == 9
+
+
+def test_insert_row(db_test):
+    my_table = MyTable(db_test)
+    assert len(my_table.all()) == 9
+    new_row = MyRow(db_test)
+    new_row.category = 1
+    new_row.last_update = MyTable.get_daystamp_from_date("2024-03-01")
+    new_row.question = "question"
+    new_row.response = "response"
+    new_row.json_example = "{}"
+    new_row.save()
+    my_qs = my_table.all()
+    assert len(my_qs) == 10
+
+
+def test_update_row(db_test):
+    my_table = MyTable(db_test)
+    my_qs = my_table.all()
+    assert len(my_qs) == 9
+    existing_row = my_qs[0]
+    existing_row.response = "updated"
+    existing_row.save()
+    my_qs = my_table.all()
+    assert len(my_qs) == 9

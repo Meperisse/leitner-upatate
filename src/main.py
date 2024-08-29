@@ -28,6 +28,7 @@ REQ3_PCENT = 4
 
 
 def update_i_know(row, recto, idx_example):
+    print("\n\n")
     if row.category == 0:
         row.category = 2
     elif row.category != 8:
@@ -38,6 +39,7 @@ def update_i_know(row, recto, idx_example):
 
 
 def update_i_dont_know(row, recto, idx_example):
+    print("\n\n")
     row.category = 1
     row.last_update = MyTable.get_daystamp_from_date()
     row.save()
@@ -70,10 +72,10 @@ MTX_FUNC = {
 
 def display(row, recto, idx_example):
     if recto:
-        print(f"Question: {row.question}")
+        print(f"\nQuestion: {row.question}")
         print(f"Example: {row.dict_example['fr'][idx_example]}")
     else:
-        print(f"Response: {row.response}")
+        print(f"\nResponse: {row.response}")
         print(f"Example: {row.dict_example['en'][idx_example]}")
 
 

@@ -20,6 +20,7 @@ CATEGORY_SCORE = [
     (32, 2),
     (64, 1),
 ]
+OVERWRITE = False
 TOTAL_WORD = 150
 REQ2_PCENT = 70
 REQ3_PCENT = 4
@@ -104,6 +105,7 @@ def main():
         DATABASE_FILENAME,
         JSON_FILENAME,
         CATEGORY_SCORE,
+        OVERWRITE,
         TOTAL_WORD,
         REQ2_PCENT,
         REQ3_PCENT,

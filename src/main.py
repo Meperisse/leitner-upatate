@@ -24,10 +24,11 @@ OVERWRITE = False
 TOTAL_WORD = 150
 REQ2_PCENT = 70
 REQ3_PCENT = 4
+HIDE_INPUT_MESSAGE = True
 ## end
 
 
-def update_i_know(row, recto, idx_example):
+def update_i_know(row, recto, idx_example, idx):
     print("\n\n")
     if row.category == 0:
         row.category = 2
@@ -38,7 +39,7 @@ def update_i_know(row, recto, idx_example):
     return 1, recto
 
 
-def update_i_dont_know(row, recto, idx_example):
+def update_i_dont_know(row, recto, idx_example, idx):
     print("\n\n")
     row.category = 1
     row.last_update = MyTable.get_daystamp_from_date()
@@ -46,18 +47,18 @@ def update_i_dont_know(row, recto, idx_example):
     return 1, recto
 
 
-def show_translation(row, recto, idx_example):
+def show_translation(row, recto, idx_example, idx):
     recto ^= True
-    display(row, recto, idx_example)
+    display(row, recto, idx_example, idx)
     return 0, recto
 
 
-def delete_card(row, recto, idx_example):
+def delete_card(row, recto, idx_example, idx):
     row.delete()
     return 1, recto
 
 
-def exit_game(row, recto, idx_example):
+def exit_game(row, recto, idx_example, idx):
     exit()
 
 
@@ -70,9 +71,9 @@ MTX_FUNC = {
 }
 
 
-def display(row, recto, idx_example):
+def display(row, recto, idx_example, idx):
     if recto:
-        print(f"\nQuestion: {row.question}")
+        print(f"\n{idx+1}) Question: {row.question}")
         print(f"Example: {row.dict_example['fr'][idx_example]}")
     else:
         print(f"\nResponse: {row.response}")
@@ -83,6 +84,10 @@ def main_loop(my_db):
     # recuperer les fiches (critere de categorie, d'age et de nombre)
     # pour chaque fiche, poser la question
     # mettre a jour la fiche en fonction de la reponse
+    if HIDE_INPUT_MESSAGE:
+        input_message="y,n,s,d,q : "
+    else:
+        input_message = "Yes, No, Show, Delete, Quit (y,n,s,d, q): "
     my_table = MyTable(my_db)
     rows = my_table.get_all_selection()
     idx = 0
@@ -93,10 +98,10 @@ def main_loop(my_db):
         if increment == 1:
             recto = True
             idx_example = random.randint(0, row.len_example - 1)
-            display(row, recto, idx_example)
-        res = input("Yes, No, Show, Delete, Quit (y,n,s,d, q): ").strip().lower()
-        increment, recto = MTX_FUNC.get(res, lambda x, y, z: (0, y))(
-            row, recto, idx_example
+            display(row, recto, idx_example, idx)
+        res = input(input_message).strip().lower()
+        increment, recto = MTX_FUNC.get(res, lambda x, y, z, t: (0, y))(
+            row, recto, idx_example, idx
         )
         idx += increment
 

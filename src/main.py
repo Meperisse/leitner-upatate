@@ -21,7 +21,7 @@ CATEGORY_SCORE = [
     (64, 1),
 ]
 OVERWRITE = False
-TOTAL_WORD = 150
+TOTAL_WORD = 100
 REQ2_PCENT = 70
 REQ3_PCENT = 4
 HIDE_INPUT_MESSAGE = True
@@ -54,8 +54,12 @@ def show_translation(row, recto, idx_example, idx):
 
 
 def delete_card(row, recto, idx_example, idx):
-    row.delete()
-    return 1, recto
+    resp=input("Are you sure to delete it? (y/n) : ")
+    if resp =="y":
+        row.delete()
+        return 1, recto
+    else:
+        return 0,recto
 
 
 def exit_game(row, recto, idx_example, idx):

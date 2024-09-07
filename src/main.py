@@ -12,17 +12,17 @@ DATABASE_FILENAME = "david.db"
 JSON_FILENAME = "data/anglais_init.json"
 CATEGORY_SCORE = [
     # age in day, score coefficient
-    (1, 64),
-    (2, 32),
-    (4, 16),
-    (8, 8),
-    (16, 4),
-    (32, 2),
-    (64, 1),
+    (1, 60),
+    (2, 40),
+    (4, 28),
+    (8, 20),
+    (16, 15),
+    (32, 12),
+    (64, 10),
 ]
 OVERWRITE = False
 TOTAL_WORD = 100
-REQ2_PCENT = 70
+REQ2_PCENT = 80
 REQ3_PCENT = 4
 HIDE_INPUT_MESSAGE = True
 ## end
@@ -108,6 +108,9 @@ def main_loop(my_db):
             row, recto, idx_example, idx
         )
         idx += increment
+    #Affiche le nombre d'éléments par liste
+    for i in range(1,9):
+        print("Il y a "+str(MyTable(my_db).count_category(i))+" éléments dans la table "+str(i))
 
 
 def main():

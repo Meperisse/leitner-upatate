@@ -103,6 +103,9 @@ SQL_DELETE_ENTRY = """
 DELETE FROM anglais_v2
 WHERE id = {id}
 """
+SQL_COUNT_CATEGORY ="""
+SELECT COUNT(*) FROM anglais_v2 WHERE category={cat}
+"""
 ## end
 
 
@@ -266,6 +269,11 @@ class MyTable:
         random.shuffle(res)
         return res
 
+    def count_category(self, cat):
+        self.db.cur.execute(
+            SQL_COUNT_CATEGORY.format(cat=cat)
+        )
+        return self.db.cur.fetchone()[0]
 
 class MyRow:
     id = None
